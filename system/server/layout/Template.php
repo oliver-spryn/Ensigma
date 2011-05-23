@@ -2,33 +2,49 @@
 //This script will import the selected template from the database, apply, then fill it for each page
 
 	class Template {
-	//Define variables used throughout the template
-	//Defined from database
+	//Defined from database or script
 		private $name;
 		private $slogan;
 		private $template;
+		private $headers;
 		
 	//Defined by user
 		public $title;
 		public $includeTop;
 		public $includeBottom;
 		
-	//Define now
-		private $headers = "<link rel=\"stylesheet\" type=\"text/css\" href=\"https://localhost/ensigma/system/stylesheets/universal.css\" />
-<link rel=\"stylesheet\" type=\"text/css\" href=\"https://localhost/ensigma/system/stylesheets/jquery-ui.custom.css\" />
-<link type=\"image/gif\" rel=\"shortcut icon\" href=\"https://localhost/admin/images/icon.gif\" />
-<noscript><meta http-equiv=\"refresh\" content=\"0; url=https://localhost/admin/enable_javascript.php\"></noscript>
-<script type=\"text/javascript\" src=\"https://localhost/admin/javascripts/jQuery/jquery.min.js\"></script>
-<script type=\"text/javascript\" src=\"https://localhost/admin/javascripts/jQuery/jquery-ui.custom.min.js\"></script>";
-		
 	//Setup the database-driven variables
 		public function __construct() {
 			global $db;
 			
+		//Site information
 			$templateData = $db->query("SELECT * FROM `config` WHERE `id` = '1'");
 			$this->name = $templateData["name"];
 			$this->slogan = $templateData["slogan"];
 			$this->template = $templateData["template"];
+			
+		//SEO information
+			$SEOData = $db->query("SELECT * FROM `seo`", "raw");
+			$SEOMeta = "";
+			
+			while($data = $db->fetch($SEOData)) {
+				$SEOMeta .= $data['meta'] . "\n";
+			}
+			
+			$this->headers = "<base href=\"" . ROOT . "\" />
+<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />
+<meta http-equiv=\"content-language\" content=\"en\" />
+<meta name=\"resource-type\" content=\"document\" />
+
+<meta name=\"robots\" content=\"index, follow\" />
+<meta name=\"googlebot\" content=\"index, follow\" />
+" . $SEOMeta . "
+<link rel=\"stylesheet\" type=\"text/css\" href=\"" . ROOT . "system/stylesheets/universal.css\" />
+<link rel=\"stylesheet\" type=\"text/css\" href=\"" . ROOT . "system/stylesheets/jquery-ui.custom.css\" />
+<link type=\"image/gif\" rel=\"shortcut icon\" href=\"" . ROOT . "system/images/icon.gif\" />
+<script type=\"text/javascript\" src=\"" . ROOT . "system/javascripts/jquery.min.js\"></script>
+<script type=\"text/javascript\" src=\"" . ROOT . "system/javascripts/jquery-ui.custom.min.js\"></script>
+";
 		}
 		
 	//Import the template beginning
